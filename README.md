@@ -1,4 +1,4 @@
-# GT: New Horizons on FreeBSD
+# GregTech: New Horizons on FreeBSD
 
 A community-maintained guide for running **GregTech: New Horizons (GT:NH)** on **FreeBSD 15.x** using Prism Launcher, LWJGL3, and Java 25.
 
@@ -263,3 +263,8 @@ The ideal long-term solution is native FreeBSD support in the relevant LWJGL com
 The bytecode workaround in this guide should be considered temporary. A proper upstream compatibility change would eliminate the need for users to modify the distributed JAR.
 
 This guide is independently maintained and is not affiliated with or endorsed by the GTNH development team.
+
+## Known issues
+
+- The default "26.2 Minecraft bitmap rendering" results in black textures. Make sure to change it!
+- Vulkan rendering results in degraded performance (softpipe/llvmpipe rendering).
