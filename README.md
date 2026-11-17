@@ -1,6 +1,6 @@
 # GregTech: New Horizons on FreeBSD
 
-A community-maintained guide for running **GregTech: New Horizons (GTNH)** on **FreeBSD 15.x** using Prism Launcher, LWJGL3, and modern Java.
+A little guide for running **GregTech: New Horizons (GTNH)** on **FreeBSD 15.x** using Prism Launcher, LWJGL3, and modern Java.
 
 ## Tested configuration
 
