@@ -2,7 +2,8 @@
 
 A community-maintained guide for running **GregTech: New Horizons (GT:NH)** on **FreeBSD 15.x** using Prism Launcher, LWJGL3, and Java 25.
 
-Tested configuration:
+## Tested configuration
+
 - FreeBSD 15.x
 - Prism Launcher
 - KDE Plasma 6 / KWin (Wayland)
@@ -13,6 +14,8 @@ Tested configuration:
 This guide documents the local compatibility adjustments required to get the game running. It is not an official GTNH project.
 
 ## 1. Install dependencies
+
+Install the required packages as root:
 
 ```sh
 pkg install prismlauncher openjdk25 lwjgl3 glfw openal-soft sdl3
@@ -36,21 +39,25 @@ Adjust this path if your instance has a different name or location.
 
 The FreeBSD Prism Launcher build may fail to resolve the `forgePatches` Maven artifact automatically.
 
-Copy the matching `gtnh-rfb` JAR into the instance's libraries directory.
+Download the matching RetroFuturaBootstrap JAR from the GTNH Maven repository:
 
-For example, for version 3.0.42:
+[RetroFuturaBootstrap 3.0.42 – GTNH Maven](https://nexus.gtnewhorizons.com/repository/public/com/gtnewhorizons/retrofuturabootstrap/3.0.42/)
+
+Place the downloaded JAR in the instance's libraries directory, using the filename expected by your instance configuration.
+
+For example:
 
 ```sh
 mkdir -p "$INST/libraries"
 ```
 
-Place the matching `gtnh-rfb-3.0.42.jar` inside:
+Expected local filename:
 
 ```text
-$INST/libraries/
+$INST/libraries/gtnh-rfb-3.0.42.jar
 ```
 
-Use the version corresponding to your installed lwjgl3ify configuration.
+Use the version corresponding to your installed GTNH/lwjgl3ify configuration.
 
 ### B. Add lwjgl-glfw to the classpath
 
@@ -149,11 +156,19 @@ Under Tweaks → Native Libraries:
 
 For KDE Plasma 6 / KWin Wayland, set the Prism Launcher wrapper command to:
 
+**AMD/Intel GPUs using Mesa:**
+
 ```sh
 env -u WAYLAND_DISPLAY SDL_VIDEODRIVER=x11 __GLX_VENDOR_LIBRARY_NAME=mesa
 ```
 
-This forces SDL to use X11/XWayland instead of attempting to initialize its Wayland video backend.
+**NVIDIA GPUs:**
+
+```sh
+env -u WAYLAND_DISPLAY SDL_VIDEODRIVER=x11
+```
+
+This forces SDL to use X11/XWayland instead of attempting to initialize its Wayland video backend. The Mesa environment variable is only intended for AMD/Intel GPUs using Mesa.
 
 ## 4. Fix LWJGLUtil platform detection
 
