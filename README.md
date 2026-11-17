@@ -1,6 +1,6 @@
 # GregTech: New Horizons on FreeBSD
 
-A community-maintained guide for running **GregTech: New Horizons (GT:NH)** on **FreeBSD 15.x** using Prism Launcher, LWJGL3, and Java 25.
+A community-maintained guide for running **GregTech: New Horizons (GTNH)** on **FreeBSD 15.x** using Prism Launcher, LWJGL3, and modern Java.
 
 ## Tested configuration
 
@@ -11,7 +11,7 @@ A community-maintained guide for running **GregTech: New Horizons (GT:NH)** on *
 - OpenJDK 25
 - GTNH with lwjgl3ify 3.0.42
 
-This guide documents the local compatibility adjustments required to get the game running. It is not an official GTNH project.
+This guide documents the local compatibility adjustments required to get GTNH running on FreeBSD. It is not an official GTNH project.
 
 ## 1. Install dependencies
 
@@ -23,7 +23,7 @@ pkg install prismlauncher openjdk25 lwjgl3 glfw openal-soft sdl3
 
 ## 2. Import the GTNH instance
 
-1. Download the Java 17+ Prism/MultiMC instance archive for GTNH.
+1. Download the Java 17–25 Prism/MultiMC instance archive from [GTNH Downloads](https://downloads.gtnewhorizons.com/).
 2. Import it into Prism Launcher.
 3. Close Prism Launcher completely before modifying instance files.
 
@@ -35,29 +35,55 @@ INST="$HOME/.local/share/PrismLauncher/instances/GT-NH"
 
 Adjust this path if your instance has a different name or location.
 
-### A. Fix RetroFuturaBootstrap (forgePatches) resolution
+### A. Fix forgePatches resolution
 
-The FreeBSD Prism Launcher build may fail to resolve the `forgePatches` Maven artifact automatically.
+The FreeBSD Prism Launcher build may fail to resolve the lwjgl3ify `forgePatches` Maven artifact automatically.
 
-Download the matching RetroFuturaBootstrap JAR from the GTNH Maven repository:
+This is not a separate RetroFuturaBootstrap download. RetroFuturaBootstrap is bundled with lwjgl3ify; `forgePatches` is a separate artifact containing compatibility patches required by the launcher.
 
-[RetroFuturaBootstrap 3.0.42 – GTNH Maven](https://nexus.gtnewhorizons.com/repository/public/com/gtnewhorizons/retrofuturabootstrap/3.0.42/)
+For lwjgl3ify 3.0.42, download:
 
-Place the downloaded JAR in the instance's libraries directory, using the filename expected by your instance configuration.
+**`lwjgl3ify-3.0.42-forgePatches.jar`**
 
-For example:
+Sources:
+
+- [GitHub – lwjgl3ify 3.0.42 releases](https://github.com/GTNewHorizons/lwjgl3ify/releases/tag/3.0.42)
+- [CurseForge – lwjgl3ify 3.0.42](https://www.curseforge.com/minecraft/mc-mods/lwjgl3ify/files/9376133)
+- [CurseForge – Additional files](https://www.curseforge.com/minecraft/mc-mods/lwjgl3ify/files/9376133/additional-files)
+
+The main CurseForge download is `lwjgl3ify-3.0.42.jar`. Make sure you download the separate `forgePatches` artifact instead.
+
+Download directly from the GitHub release:
 
 ```sh
 mkdir -p "$INST/libraries"
+
+fetch -o "$INST/libraries/lwjgl3ify-3.0.42-forgePatches.jar" \
+  "https://github.com/GTNewHorizons/lwjgl3ify/releases/download/3.0.42/lwjgl3ify-3.0.42-forgePatches.jar"
 ```
 
-Expected local filename:
+The local filename must match the library referenced by the Prism component patch:
 
 ```text
-$INST/libraries/gtnh-rfb-3.0.42.jar
+libraries/lwjgl3ify-3.0.42-forgePatches.jar
 ```
 
-Use the version corresponding to your installed GTNH/lwjgl3ify configuration.
+The relevant component is normally:
+
+```text
+patches/me.eigenraven.lwjgl3ify.forgepatches.json
+```
+
+Its library entry should reference:
+
+```json
+{
+    "name": "com.github.GTNewHorizons:lwjgl3ify:3.0.42:forgePatches",
+    "MMC-hint": "local"
+}
+```
+
+If your instance already contains this component, you should not need to recreate it. Check that its version and local library reference match the downloaded artifact.
 
 ### B. Add lwjgl-glfw to the classpath
 
@@ -168,7 +194,9 @@ env -u WAYLAND_DISPLAY SDL_VIDEODRIVER=x11 __GLX_VENDOR_LIBRARY_NAME=mesa
 env -u WAYLAND_DISPLAY SDL_VIDEODRIVER=x11
 ```
 
-This forces SDL to use X11/XWayland instead of attempting to initialize its Wayland video backend. The Mesa environment variable is only intended for AMD/Intel GPUs using Mesa.
+This forces SDL to use X11/XWayland instead of attempting to initialize its Wayland video backend.
+
+The Mesa environment variable is intended for AMD/Intel GPUs using Mesa.
 
 ## 4. Fix LWJGLUtil platform detection
 
@@ -247,7 +275,7 @@ Launch GTNH normally through Prism Launcher.
 
 If everything is configured correctly, LWJGL should be able to load the system GLFW and OpenAL libraries while retaining FreeBSD platform detection.
 
-## Notes and limitations
+## Limitations and acknowledgements
 
 - This configuration is based on one tested FreeBSD setup, not a guarantee of compatibility with every GPU, desktop environment, or GTNH release.
 - The bytecode workaround is tied to a specific lwjgl3ify version.
@@ -255,6 +283,7 @@ If everything is configured correctly, LWJGL should be able to load the system G
 - Prism Launcher updates or instance reimports may overwrite local component configuration.
 - Keep backups of modified instance files.
 - These changes are local to the instance and do not modify the upstream GTNH distribution.
+- Graphics performance and rendering behavior may vary depending on the GPU and graphics stack.
 
 ## Upstream compatibility
 
@@ -264,7 +293,7 @@ The bytecode workaround in this guide should be considered temporary. A proper u
 
 This guide is independently maintained and is not affiliated with or endorsed by the GTNH development team.
 
-## Known issues
+## Known issues on my setup
 
 - The default "26.2 Minecraft bitmap rendering" results in black textures. Make sure to change it!
 - Vulkan rendering results in degraded performance (softpipe/llvmpipe rendering).
